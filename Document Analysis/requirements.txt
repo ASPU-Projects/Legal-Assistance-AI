@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+torch
+transformers
+sentencepiece
+PyPDF2
+pdf2image
+pytesseract
+Pillow

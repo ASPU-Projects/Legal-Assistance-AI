@@ -1,1 +1,8 @@
 /venv
+/ChatBot/data
+/ChatBot/__pycache__
+/ChatBot/chroma_db_nomic
+/Document Analysis/legal_docs
+/Document Analysis/__pycache__
+/__pycache__
+/.vscode

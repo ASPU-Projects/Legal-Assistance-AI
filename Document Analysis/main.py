@@ -1,23 +1,32 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from data_loader import load_pdfs_from_folder
-from embed_and_index import embed_documents
-from query_engine import get_top_chunks
+from fastapi import FastAPI, UploadFile, File
+from extract_text import extract_text_from_pdf, extract_text_from_image
+from summarize import summarize_text, chunk_text
+import os
 
-app = FastAPI()
+app = FastAPI(title="Legal Document Summarizer")
 
-# Load documents3 and build index
-docs = load_pdfs_from_folder("legal_docs")
-index, chunks, model = embed_documents(docs)
+@app.post("/summarize")
+async def summarize_document(file: UploadFile = File(...)):
+    filename = file.filename
+    content = await file.read()
+    temp_path = f"temp_{filename}"
 
-# Request schema
-class QueryRequest(BaseModel):
-    question: str
+    with open(temp_path, "wb") as f:
+        f.write(content)
 
-@app.post("/ask")
-def ask_question(request: QueryRequest):
     try:
-        answers = get_top_chunks(request.question, model, index, chunks)
-        return {"answers": answers}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        if filename.lower().endswith(".pdf"):
+            text = extract_text_from_pdf(temp_path)
+        elif filename.lower().endswith((".jpg", ".jpeg", ".png")):
+            text = extract_text_from_image(temp_path)
+        else:
+            return {"error": "Unsupported file type. Use PDF or image."}
+
+        chunks = chunk_text(text, chunk_size=1000)
+        summaries = [summarize_text(chunk) for chunk in chunks]
+        final_summary = "\n".join(summaries)
+
+    finally:
+        os.remove(temp_path)
+
+    return {"filename": filename, "summary": final_summary}
