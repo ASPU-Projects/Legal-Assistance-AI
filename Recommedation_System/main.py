@@ -5,7 +5,7 @@ from nltk.corpus import stopwords
 import string
 import requests,json
 import pyterrier as pt
-from Preprocessing.Preprocess import split_by_language,compute_similarity,convert2json
+from .Preprocessing.Preprocess import split_by_language,compute_similarity,convert2json
 
 if not pt.started():
     pt.init()
@@ -14,22 +14,22 @@ if not pt.started():
 ### Load The Data From The APIs
 
 # Get Lawyers From Lawyers API
-lawyer_response = requests.get("http://osamanaser806-32078.portmap.io:32078/api/v1/ai/lawyers")
+lawyer_response = requests.get("http://osamanaser2003-21041.portmap.host:21041/api/v1/ai/lawyers")
 print(f"status code : {lawyer_response.status_code}")
 
 
 # Get Rates From Rates API 
-rate_response = requests.get("http://osamanaser806-32078.portmap.io:32078/api/v1/ai/rates")
+rate_response = requests.get("http://osamanaser2003-21041.portmap.host:21041/api/v1/ai/ratings")
 print(f"status code : {rate_response.status_code}")
 
 
 # Get Agencies From Agencies API
-agency_response = requests.get("http://osamanaser806-32078.portmap.io:32078/api/v1/ai/agencies")
+agency_response = requests.get("http://osamanaser2003-21041.portmap.host:21041/api/v1/ai/agencies")
 print(f"status code : {agency_response.status_code}")
 
 
 # Get Issues From Issues API
-issue_response = requests.get("http://osamanaser806-32078.portmap.io:32078/api/v1/ai/issues")
+issue_response = requests.get("http://osamanaser2003-21041.portmap.host:21041/api/v1/ai/issues")
 print(f"status code : {issue_response.status_code}")
 
 

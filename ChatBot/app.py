@@ -39,13 +39,16 @@ app = FastAPI(title="Legal Chatbot API", description="استعلامات قان�
 # تعريف موديل الإدخال
 class QueryRequest(BaseModel):
     question: str
-    k: int = 3
+    k: int = 1
 
 @app.post("/ask")
 def ask(request: QueryRequest):
     results = db.similarity_search(request.question, k=request.k)
-    answers = [r.page_content for r in results]
+    if results:  
+        answer = results[0].page_content   # أخذ أول نتيجة فقط
+    else:
+        answer = "لم يتم العثور على نتائج."
     return {
         "query": request.question,
-        "results": answers
+        "answer": answer
     }
