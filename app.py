@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 from langchain_community.vectorstores import Chroma
 from sentence_transformers import SentenceTransformer
 from pydantic import BaseModel
@@ -19,6 +20,15 @@ A Three AI Systems work for this platform
 @app.get("/")
 def ready():
     return "Done"
+
+# Add CORS Middleware to handle preflight requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Change this to specific origins if needed
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all HTTP methods including OPTIONS
+    allow_headers=["*"],  # Allows all headers
+)
 
 # ChatBot
 
@@ -56,13 +66,13 @@ db = Chroma(
 # تعريف موديل الإدخال
 class QueryRequest(BaseModel):
     question: str
-    k: int = 3
+    k: int = 1
 
 @app.post("/ask") 
 def ask(request: QueryRequest):
      results = db.similarity_search(request.question, k=request.k) 
-     answers = [r.page_content for r in results] 
-     return { "query": request.question, "results": answers }
+     answers = results[0].page_content
+     return { "query": request.question, "content": answers,"sender_role":"ai" }
 
 
 # Recommendation System
@@ -100,4 +110,4 @@ async def summarize_document(file: UploadFile = File(...)):
     # finally:
     #     os.remove(temp_path)
 
-    return {"filename": filename, "summary": "final_summary"}
+    return {"file_name": filename, "content": "final_summary","sender_role": "ai"}

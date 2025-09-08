@@ -36,16 +36,19 @@ print(f"status code : {issue_response.status_code}")
 
 ### Lawyers Data Perprocessing
 lawyers_response = lawyer_response.json()
-lawyers_pere = pd.DataFrame(lawyers_response['lawyers'])
+lawyers_pere = pd.DataFrame(lawyers_response['data'])
 lawyers = lawyers_pere.rename(columns={
     "id":"lawyer_id"
 }).drop(["name","email","union_number","affiliation_date","phone","rates","avatar"],axis=1)
 # lawyers.head()
 
 
+rates_response = rate_response.json()
+rates = pd.DataFrame(rates_response["data"])
+# rates.head()
 ### Rates Data Preproceesing
 rates_response = rate_response.json()
-rates = pd.DataFrame(rates_response["rates"])
+rates = pd.DataFrame(rates_response["data"])
 rates.dropna(inplace=True)
 rates.drop(["id"],axis=1,inplace=True)
 # rates['rating'] = rates['rating'].apply(lambda x :f"{x}star")
@@ -54,7 +57,7 @@ rates.drop(["id"],axis=1,inplace=True)
 
 ### Agencies Data Perprcessing
 agencies_response = agency_response.json()
-agencies = pd.DataFrame(agencies_response["agencies"]).rename(columns={
+agencies = pd.DataFrame(agencies_response["data"]).rename(columns={
     "id":"agency_id"
 })
 agencies = agencies[["agency_id","lawyer_id"]]
@@ -63,7 +66,7 @@ agencies = agencies[["agency_id","lawyer_id"]]
 
 ### Issues Data Preprocessing
 issues_response = issue_response.json()
-issues = pd.DataFrame(issues_response["issues"]).drop(["base_number","record_number","id","start_date","end_date","status"],axis=1)
+issues = pd.DataFrame(issues_response["data"]).drop(["base_number","record_number","id","start_date","end_date","status"],axis=1)
 # issues.head()
 
 
@@ -74,16 +77,16 @@ lawyers_with_rates = lawyers.merge(rates,on="lawyer_id")
 
 ### Merge Lawyers_with_rates with Agencies
 lawyers_with_rates= pd.merge(agencies,lawyers_with_rates,on=["lawyer_id"],how="inner")
-# lawyers_with_rates.head()
+lawyers_with_rates.head()
 
 
 ### Merge Them With Issues
 lawyers_with_rates = pd.merge(issues,lawyers_with_rates,on="agency_id",how="inner")
-# lawyers_with_rates.head()
+lawyers_with_rates.head()
 
 
 ### Add Data To Text Column
-lawyers_with_rates["Text"] = lawyers_with_rates[['court_name','address','union_branch','estimated_cost']].astype(str).agg(" ".join,axis=1)
+lawyers_with_rates["Text"] = lawyers_with_rates[["court_name",'address','union_branch',"review"]].astype(str).agg(" ".join,axis=1)
 # lawyers_with_rates.head()
 
 
